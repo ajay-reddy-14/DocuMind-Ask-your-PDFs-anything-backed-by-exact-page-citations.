@@ -1,0 +1,20 @@
+import { PrismaClient } from '@prisma/client';
+
+// Singleton Prisma client – reused across the application.
+// In development, we store the instance on `globalThis` to prevent multiple
+// connections during hot-reload cycles (tsx watch).
+const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
+
+export const prisma =
+  globalForPrisma.prisma ??
+  new PrismaClient({
+    log:
+      process.env.NODE_ENV === 'development'
+        ? ['query', 'info', 'warn', 'error']
+        : ['warn', 'error'],
+  });
+
+if (process.env.NODE_ENV !== 'production') {
+  globalForPrisma.prisma = prisma;
+}
+
